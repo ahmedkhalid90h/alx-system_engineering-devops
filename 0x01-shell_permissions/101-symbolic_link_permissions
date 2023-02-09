@@ -1,0 +1,2 @@
+#!/bin/bash
+chmod -h vincent:staff_hello
