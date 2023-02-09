@@ -1,0 +1,2 @@
+#!/bin/bash
+makdir -p welcome/to/holberton
