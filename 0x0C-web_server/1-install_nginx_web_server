@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
-# This script installs a nginx web server
+# Commands to install Nginx on Web-Sever-01
 
-sudo apt update
-sudo apt install nginx -y
-sudo ufw allow 22
-sudo ufw allow 80
-sudo ufw --force enable
-sudo ufw status
-systemctl status nginx
-echo 'Holberton School' | sudo tee /var/www/html/index.nginx-debian.html > /dev/null
-sudo service nginx restart
+# Updating Packages before making Installations
+sudo apt-get update
+sudo apt-get -y install nginx
+
+# Configuring the Uncomplicated Firewall (UFW) to allow incoming traffic for the Nginx HTTP service
+sudo ufw allow 'Nginx HTTP'
+
+# Creating an index.html page
+echo "Hello World!" | sudo tee /var/www/html/index.html
+
+# Testing Nginx configurations for Syntax errors
+sudo nginx -t
+
+# Restarting Nginx
+sudo service nginx start
