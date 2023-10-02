@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# debugging nginx port 80
+
+#remove configuration in case there is error
+rm /etc/nginx/sites-enabled/default
+
+#configure nginx to listen to active IPs pn port 80
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
+
+service nginx restart
