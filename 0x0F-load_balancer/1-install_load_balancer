@@ -1,23 +1,55 @@
 #!/usr/bin/env bash
-# Installs and setup haproxy
+# install load balancer
 
-apt-get install -y software-properties-common
-add-apt-repository -y ppa:vbernat/haproxy-1.8
-apt-get -y update
-apt-get install -y haproxy=1.8.\*
 
-echo "ENABLED=1" > /etc/default/haproxy
+echo -e "Updating and doing some minor checks...\n"
 
-# Listen to web1 and web2 servers                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-sudo echo "
-   listen load_balancer
-   bind *:80
-   mode http
-   balance roundrobin
-   option httpclose
-   option forwardfor
-   server 274983-web-01 52.91.151.201:80 check
-   server 274983-web-02 54.237.91.65:80 check
-" >> /etc/haproxy/haproxy.cfg
+function install() {
+	command -v "$1" &> /dev/null
 
-service haproxy start
+	#shellcheck disable=SC2181
+	if [ $? -ne 0 ]; then
+		echo -e "	Installing: $1\n"
+		sudo apt-get update -y -qq && \
+			sudo apt-get install -y "$1" -qq
+		echo -e "\n"
+	else
+		echo -e "	${1} is already installed.\n"
+	fi
+}
+
+install haproxy #install haproxy
+
+echo -e "\nSetting up some minor stuff.\n"
+
+# backup default server config file
+sudo cp /etc/haproxy/haproxy.cfg haproxy_default.backup
+
+server_config=\
+"
+defaults
+  mode http
+  timeout client 15s
+  timeout connect 10s
+  timeout server 15s
+  timeout http-request 10s
+frontend clickviral-tech-frontend
+    bind *:80
+    default_backend clickviral-tech-backend
+backend clickviral-tech-backend
+    balance roundrobin
+    server 151666-web-01 34.232.68.152:80 check
+    server 151666-web-02 3.83.227.80:80 check
+"
+
+# shellcheck disable=SC2154
+echo "$server_config" | sudo dd status=none of=/etc/haproxy/haproxy.cfg
+
+# enable haproxy to be started by init script
+echo "ENABLED=1" | sudo dd status=none of=/etc/default/haproxy
+
+if [ "$(pgrep -c haproxy)" -le 0 ]; then
+	sudo service haproxy start
+else
+	sudo service haproxy restart
+fi
