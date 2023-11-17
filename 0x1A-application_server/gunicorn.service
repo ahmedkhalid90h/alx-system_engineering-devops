@@ -1,0 +1,12 @@
+[Unit]
+Description=Gunicorn in Tmux
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ubuntu/airbnb/AirBnB_clone_v4
+ExecStartPre=/usr/bin/python3
+ExecStart=/home/ubuntu/.local/bin/gunicorn --bind 0.0.0.0:5003 web_dynamic.2-hbnb:app
+
+[Install]
+WantedBy=multi-user.target

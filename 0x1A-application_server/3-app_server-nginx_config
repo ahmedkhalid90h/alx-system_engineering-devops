@@ -1,0 +1,24 @@
+# Define the server block for the application
+server {
+
+    # Listen on port 80 for both IPv4 and IPv6
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+
+    # Define the server name (domain or IP)
+    server_name 54.87.228.212;
+
+    # Add a custom header to responses to identify which server served the request
+    add_header X-Served-By 274822-web-01;
+
+    # Define how to respond to requests for the /airbnb-onepage/ path
+    location /airbnb-onepage/ {
+        
+        # Forward these requests to the app running on localhost port 5000
+        proxy_pass http://127.0.0.1:5000/airbnb-onepage/;
+    }
+
+    location ~ ^/airbnb-dynamic/number_odd_or_even/(\d+)$ {
+      proxy_pass http://127.0.0.1:5001/number_odd_or_even/$1;
+    }
+}
